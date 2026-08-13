@@ -1344,25 +1344,18 @@
    HEADER
 ========================================= */
 
-.scrubCouponsHeader{
-  flex-shrink:0;
+.scrubCouponsHeader {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: 40px 1fr 40px;
+    align-items: center;
 
-  display:grid;
-  grid-template-columns:44px 1fr 44px;
-  align-items:center;
+    min-height: 44px;
 
-  min-height:62px;
+    padding: 0 10px;
 
-  padding:
-    env(safe-area-inset-top)
-    14px
-    0;
-
- 
-
-  border-bottom:1px solid #eeeeee;
+    border-bottom: 1px solid #eeeeee;
 }
-
 
 .scrubCouponsHeader h2{
   margin:0;
