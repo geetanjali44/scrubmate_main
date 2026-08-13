@@ -66,7 +66,7 @@
   min-height:
     calc(
       58px +
-      45px +
+      9px +
       env(safe-area-inset-top)
     );
 
@@ -490,7 +490,7 @@
   min-height:
     calc(
       58px +
-      45px +
+      9px +
       env(safe-area-inset-top)
     );
 
