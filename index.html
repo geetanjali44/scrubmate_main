@@ -5349,93 +5349,455 @@ window.addEventListener("DOMContentLoaded", function(){
 
 </script>
 <script>
+/* =========================================================
+   SCRUB MATE — ANDROID BACK SWIPE / BACK BUTTON
+   Fast internal navigation — NO history.back() lag
+========================================================= */
+
 window.scrubMateAndroidBack = function () {
 
+  /* -----------------------------------------
+     HELPER: is element currently visible?
+  ----------------------------------------- */
+  function isOpen(id) {
+
+    const el = document.getElementById(id);
+
+    if (!el) return false;
+
+    if (el.hidden) return false;
+
+    if (el.getAttribute("aria-hidden") === "true") {
+      return false;
+    }
+
+    return (
+      el.classList.contains("show") ||
+      el.classList.contains("open") ||
+      el.classList.contains("active") ||
+      getComputedStyle(el).display !== "none"
+    );
+  }
+
+
+  /* -----------------------------------------
+     HELPER: click existing back/close button
+  ----------------------------------------- */
+  function clickButton(id) {
+
+    const button = document.getElementById(id);
+
+    if (!button) {
+      return false;
+    }
+
+    button.click();
+
+    return true;
+  }
+
+
+  /* =====================================================
+     1. DELETE ACCOUNT BOTTOM SHEET
+  ===================================================== */
+
+  if (isOpen("scrubDeleteAccountOverlay")) {
+
+    if (clickButton("scrubDeleteAccountClose")) {
+      return true;
+    }
+
+    if (clickButton("scrubDeleteAccountCancel")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     2. ORDER CANCEL SHEET
+  ===================================================== */
+
+  if (isOpen("scurbCancelSheetOverlay")) {
+
+    if (clickButton("scurbCancelSheetClose")) {
+      return true;
+    }
+
+    if (clickButton("scurbCancelSheetNo")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     3. COUPON POPUP INSIDE CART
+  ===================================================== */
+
+  if (isOpen("scurbCouponPopup")) {
+
+    if (clickButton("scurbCouponCloseButton")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     4. HELP & SUPPORT
+  ===================================================== */
+
+  if (isOpen("scrubSupportPopup")) {
+
     /*
-     * PROFILE PAGE
+     * If order selector is open inside support,
+     * close that first.
      */
-    const profilePage =
-        document.getElementById("scrubProfilePage");
+    const supportOrders =
+      document.getElementById("scrubSupportOrdersArea");
 
     if (
-        profilePage &&
-        (
-            profilePage.classList.contains("show") ||
-            getComputedStyle(profilePage).display !== "none"
-        )
+      supportOrders &&
+      !supportOrders.hidden &&
+      getComputedStyle(supportOrders).display !== "none"
     ) {
 
-        const backButton =
-            document.getElementById("scrubProfileBackButton");
+      if (clickButton("scrubSupportCloseOrdersButton")) {
+        return true;
+      }
+    }
 
-        if (backButton) {
-            backButton.click();
-            return true;
-        }
+    if (clickButton("scrubSupportBackButton")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     5. HOW IT WORKS
+  ===================================================== */
+
+  if (isOpen("scrubHowItWorksPopup")) {
+
+    /*
+     * Stop playing videos before leaving.
+     */
+    document
+      .querySelectorAll(".scrubHowItWorksVideo")
+      .forEach(function(video){
+
+        try {
+          video.pause();
+        } catch(e) {}
+
+      });
+
+    if (clickButton("scrubHowItWorksBackButton")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     6. SAVED ADDRESSES
+  ===================================================== */
+
+  if (isOpen("scrubSavedAddressesPopup")) {
+
+    if (clickButton("scrubSavedAddressesBackButton")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     7. ABOUT US
+  ===================================================== */
+
+  if (isOpen("scrubAboutUsPopup")) {
+
+    if (clickButton("scrubAboutUsBackButton")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     8. PRIVACY POLICY
+  ===================================================== */
+
+  if (isOpen("scrubPrivacyPopup")) {
+
+    if (clickButton("scrubPrivacyBackButton")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     9. TERMS OF SERVICE
+  ===================================================== */
+
+  if (isOpen("scrubTermsPopup")) {
+
+    if (clickButton("scrubTermsBackButton")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     10. MY COUPONS
+  ===================================================== */
+
+  if (isOpen("scrubCouponsPopup")) {
+
+    if (clickButton("scrubCouponsBackButton")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     11. ORDER TRACKING PAGE
+  ===================================================== */
+
+  if (isOpen("scurbOrderTrackingPage")) {
+
+    if (clickButton("scurbOrderBackButton")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     12. CART PAGE
+  ===================================================== */
+
+  if (isOpen("scurbCartPage")) {
+
+    if (clickButton("scurbCartBackButton")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     13. SERVICE POPUPS
+     
+     Your service popup containers are dynamically filled,
+     so handle all of them here.
+  ===================================================== */
+
+  const servicePopupIds = [
+
+    "fridgeCleaningPopup",
+    "windowCleaningPopup",
+    "utilitiesCleaningPopup",
+    "acCleaningPopup",
+    "bathroomCleaningPopup",
+    "kitchenHelpPopup",
+    "dustingWipingPopup",
+    "packingUnpackingPopup",
+    "ironingPopup",
+    "fanCleaningPopup",
+    "bedroomCleaningPopup",
+    "shopCleaningPopup",
+    "bikeCleaningPopup",
+    "laundryServicePopup",
+    "sweepingMoppingPopup",
+    "stageCleaningPopup"
+
+  ];
+
+
+  for (const popupId of servicePopupIds) {
+
+    const popup =
+      document.getElementById(popupId);
+
+    if (!popup) continue;
+
+
+    const popupVisible =
+      popup.classList.contains("show") ||
+      popup.classList.contains("open") ||
+      popup.classList.contains("active") ||
+      (
+        popup.innerHTML.trim() !== "" &&
+        getComputedStyle(popup).display !== "none"
+      );
+
+
+    if (!popupVisible) {
+      continue;
     }
 
 
     /*
-     * MANUAL LOCATION PAGE
+     * Find close/back button inside dynamically
+     * generated service popup.
      */
-    const manualPage =
-        document.getElementById("manualSearchPage");
+    const closeButton =
+      popup.querySelector(
+        `
+        [data-close],
+        [data-popup-close],
+        .popup-close,
+        .close-button,
+        .closePopup,
+        .scurbPopupClose,
+        button[aria-label="Close"],
+        button[aria-label="Back"],
+        button[aria-label="Go back"]
+        `
+      );
 
-    if (
-        manualPage &&
-        (
-            manualPage.classList.contains("show") ||
-            getComputedStyle(manualPage).display !== "none"
-        )
-    ) {
 
-        const backButton =
-            document.getElementById("manualSearchBackButton");
+    if (closeButton) {
 
-        if (backButton) {
-            backButton.click();
-            return true;
-        }
+      closeButton.click();
+
+      return true;
     }
 
 
     /*
-     * LOCATION PAGE
+     * Fallback if no close button found.
      */
-    const locationPage =
-        document.getElementById("locationPage");
+    popup.classList.remove(
+      "show",
+      "open",
+      "active"
+    );
 
-    if (
-        locationPage &&
-        (
-            locationPage.classList.contains("show") ||
-            getComputedStyle(locationPage).display !== "none"
-        )
-    ) {
+    popup.style.display = "none";
 
-        /*
-         * Add your location back button here
-         * if this page has one.
-         */
+    return true;
+  }
+
+
+  /* =====================================================
+     14. CONFIRM LOCATION MAP
+  ===================================================== */
+
+  if (isOpen("confirmLocationPage")) {
+
+    if (clickButton("confirmLocationBackButton")) {
+      return true;
     }
+  }
 
+
+  /* =====================================================
+     15. MANUAL LOCATION SEARCH
+  ===================================================== */
+
+  if (isOpen("manualSearchPage")) {
+
+    if (clickButton("manualSearchBackButton")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     16. PROFILE PAGE
+  ===================================================== */
+
+  if (isOpen("scrubProfilePage")) {
+
+    if (clickButton("scrubProfileBackButton")) {
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     17. BOOKINGS TAB
+     
+     Bookings isn't another browser URL.
+     It is inside the home page.
+  ===================================================== */
+
+  const bookingsContent =
+    document.getElementById("scurbBookingsContent");
+
+  if (
+    bookingsContent &&
+    bookingsContent.classList.contains("show")
+  ) {
+
+    if (typeof showScurbHomeScreen === "function") {
+
+      showScurbHomeScreen();
+
+      return true;
+    }
+  }
+
+
+  /* =====================================================
+     18. LOCATION PAGE
+  ===================================================== */
+
+  if (isOpen("locationPage")) {
 
     /*
-     * NORMAL BROWSER HISTORY
+     * If location was opened from Home,
+     * go back to Home.
      */
-    if (history.length > 1) {
+    if (
+      typeof scurbLocationOpenedFromHome !== "undefined" &&
+      scurbLocationOpenedFromHome
+    ) {
 
-        history.back();
+      if (typeof openScurbHomePage === "function") {
+
+        openScurbHomePage();
 
         return true;
+      }
     }
 
-
     /*
-     * FALSE =
-     * Website is already at root/home.
+     * During first-time setup there may be
+     * no previous app page.
+     *
+     * Returning false allows Android to close
+     * the app normally.
      */
     return false;
+  }
+
+
+  /* =====================================================
+     19. MAIN HOME PAGE
+     
+     THIS IS THE LAST PAGE.
+     
+     Return FALSE.
+     MainActivity.kt will then allow Android
+     to close/minimize the app.
+  ===================================================== */
+
+  const homePage =
+    document.getElementById("scurbHomePage");
+
+  if (
+    homePage &&
+    homePage.classList.contains("show")
+  ) {
+
+    return false;
+  }
+
+
+  /* =====================================================
+     20. NOTHING ELSE TO GO BACK TO
+     
+     Let Android close the app.
+  ===================================================== */
+
+  return false;
 };
 </script>
 </body>
